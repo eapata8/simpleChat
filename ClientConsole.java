@@ -118,7 +118,7 @@ public class ClientConsole implements ChatIF
   public static void main(String[] args) 
   {
     String host = "";
-    int port = 0;
+    int port = DEFAULT_PORT;
 
 
     try
@@ -129,6 +129,10 @@ public class ClientConsole implements ChatIF
     catch(ArrayIndexOutOfBoundsException e)
     {
       host = "localhost";
+      port = DEFAULT_PORT;
+    }
+    catch(NumberFormatException f) {
+      port = DEFAULT_PORT;
     }
     ClientConsole chat= new ClientConsole(host, port);
     chat.accept();  //Wait for console data
