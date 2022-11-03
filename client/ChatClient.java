@@ -68,6 +68,10 @@ public class ChatClient extends AbstractClient
   {
     try
     {
+    	if(message.startsWith("#")) {
+    		handleCommand(message);
+    	}
+    	else
       sendToServer(message);
     }
     catch(IOException e)
@@ -76,6 +80,62 @@ public class ChatClient extends AbstractClient
         ("Could not send message to server.  Terminating client.");
       quit();
     }
+  }
+  
+  public void handleCommand(String cmd) {
+	  if(cmd.equals("#quit")) {
+		  clientUI.display("The client will quit");
+		  quit();
+	  }
+	  else if (cmd.equals("#logoff")) {
+		  
+		  try {
+			  if(this.isConnected()) {
+				 clientUI.display("The connexion is closing");
+				 this.closeConnection();  
+			  }
+			  else {
+				  clientUI.display("The client is already disconnected");  
+			  }
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	  }
+	  else if (cmd.startsWith("#sethost")) {
+		  if (!isConnected()) {
+		  String host = cmd.substring(cmd.indexOf("<") + 1, cmd.indexOf(">"));
+		  setHost(host);
+		  clientUI.display("The host has been set at "+host);
+		  }
+		  else {
+			  clientUI.display("Error! You are already connected.");
+		  }
+	  }
+	  else if (cmd.startsWith("#setport")) {
+		  String port = cmd.substring(cmd.indexOf("<") + 1, cmd.indexOf(">"));
+		  try {
+			  setPort(Integer.parseInt(port));
+		  	  clientUI.display("The port has been set at "+port);
+		  	}
+		  catch(NumberFormatException n) {
+				n.printStackTrace();
+		  	}
+		  
+		  }
+	  else if (cmd.equals("#login")) {
+			  try {
+				openConnection();
+				clientUI.display("You have been connected");
+			} catch (IOException e) {
+				clientUI.display("Error! You are already connected.");
+			}
+	  }
+	  else if (cmd.equals("#gethost")) {
+		  clientUI.display("The current host is "+getHost());
+	  }
+	  else if (cmd.equals("#getport")) {
+		  clientUI.display("The current port is "+getPort());
+	  }
   }
   
   /**
