@@ -134,7 +134,7 @@ public class ChatClient extends AbstractClient
 		  clientUI.display("The current host is "+getHost());
 	  }
 	  else if (cmd.equals("#getport")) {
-		  clientUI.display("The current port is "+getPort());
+		  clientUI.display("The current port is "+Integer.toString(getPort()));
 	  }
   }
   

@@ -74,8 +74,61 @@ public class EchoServer extends AbstractServer
 
   public void handleMessageFromServerUI(String message)
   {
-      serverUI.display("SERVER MSG> " +message);
-      this.sendToAllClients("SERVER MSG> " + message);
+	  if(message.startsWith("#")) {
+  		handleCommand(message);
+  	}
+  	else
+  		serverUI.display("SERVER MSG> " +message);
+        this.sendToAllClients("SERVER MSG> " + message); 
+  }
+  
+  public void handleCommand(String message)
+  {
+	  if(message.equals("#quit")) {
+  		System.exit(0);
+  	}
+  	else if(message.equals("#stop")) {
+  		stopListening();
+  	}
+  	else if(message.equals("#close")) {
+  		try {
+			close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+  	}
+  	else if(message.startsWith("#setport")) {
+  		if (!isListening()& getNumberOfClients()==0) {
+  			String port = message.substring(message.indexOf("<") + 1, message.indexOf(">"));
+  		  try {
+  			  setPort(Integer.parseInt(port));
+  		  	  serverUI.display("The port has been set at "+port);
+  		  	}
+  		  catch(NumberFormatException n) {
+  				n.printStackTrace();
+  		  	}
+  		}
+  	}
+  	else if(message.equals("#start")) {
+  		if (!isListening()){
+          try{
+            listen();
+          }
+          catch(Exception s)
+          {
+            serverUI.display("The server cannot listen for clients!");
+          }
+        }
+        else
+        { 
+        	serverUI.display("The server is already listening for clients.");
+        }
+  	}
+  	else if (message.equals("#getport"))
+    {
+      serverUI.display("The current port is "+Integer.toString(getPort()));
+    }
+	  
   }
     
   /**
