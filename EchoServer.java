@@ -66,12 +66,38 @@ public class EchoServer extends AbstractServer
    * @param client The connection from which the message originated.
    */
   public void handleMessageFromClient
-    (Object msg, ConnectionToClient client)
-  {
-	  serverUI.display("Message received: " + msg + " from " + client);
-    this.sendToAllClients(msg);
+    (Object msg, ConnectionToClient client){
+	 
+	  if (msg.toString().startsWith("#login:")){ // Either entered by the Client or the constructor
+		  if(client.getInfo("loginID")!= null) {// The client is already connected 
+			try {
+				client.sendToClient("Error! You are already connected.");
+			} catch (IOException e) {
+				serverUI.display("Error while sending message to the client.");
+			}
+		  }
+		  else if (msg.toString().equals("#login: No loginID")){ // client trying to connect without any ID
+			  try{
+		          client.sendToClient("ERROR - No login ID specified.");
+		          client.close();
+		        }
+		        catch (IOException e) {
+		        	serverUI.display("Error while sending message to the client.");
+		        }
+		  }
+		  else {// client connecting with an ID
+			  String myID =  msg.toString().substring( msg.toString().indexOf("<") + 1,  msg.toString().indexOf(">"));
+			  client.setInfo("loginID", myID);
+			  clientConnected(client);
+		  }
+  	}
+	  else{// To handle other message types from the client
+		  String clientID =client.getInfo("loginID").toString();
+	  serverUI.display("Message received: " + msg + " from " + clientID );
+	  this.sendToAllClients(clientID+": "+msg);
+  		}
   }
-
+  
   public void handleMessageFromServerUI(String message)
   {
 	  if(message.startsWith("#")) {
@@ -156,7 +182,7 @@ public class EchoServer extends AbstractServer
    */
   @Override
   protected void clientConnected(ConnectionToClient client) {
-	  serverUI.display("The connexion has started with" + client);
+	  serverUI.display("The connexion has started with" + client.getInfo("loginID").toString());
   }
 
   /**
@@ -168,7 +194,7 @@ public class EchoServer extends AbstractServer
    */
   @Override
   synchronized protected void clientDisconnected(ConnectionToClient client) {
-	  serverUI.display("The connexion with" + client+"has stopped");
+	  serverUI.display("The connexion with" + client.getInfo("loginID").toString()+"has stopped");
   }
  
 }
